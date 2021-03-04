@@ -193,11 +193,19 @@ void fbdev_flush(lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t * color
     else if(vinfo.bits_per_pixel == 16) {
         uint16_t * fbp16 = (uint16_t *)fbp;
         int32_t y;
+#if 0
         for(y = act_y1; y <= act_y2; y++) {
             location = (act_x1 + vinfo.xoffset) + (y + vinfo.yoffset) * finfo.line_length / 2;
             memcpy(&fbp16[location], (uint32_t *)color_p, (act_x2 - act_x1 + 1) * 2);
             color_p += w;
         }
+#else
+		for(y = act_y1; y <= act_y2; y++) {
+			location = ((vinfo.xres - 1 - act_x1) - vinfo.xoffset) + ((vinfo.yres - 1 - y) - vinfo.yoffset) * finfo.line_length / 2;
+			for (uint16_t i = w; i > 0 ; i--)
+				fbp16[location--] = *(uint16_t*)color_p++;
+		}
+#endif
     }
     /*8 bit per pixel*/
     else if(vinfo.bits_per_pixel == 8) {
